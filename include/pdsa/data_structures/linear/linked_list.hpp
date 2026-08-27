@@ -1,5 +1,5 @@
-
-
+#ifndef LINKED_LIST_HPP
+#define LINKED_LIST_HPP
 namespace psda
 {
     namespace __detail
@@ -16,6 +16,16 @@ namespace psda
             {
                 delete next;
             }
+        };
+        
+        template<typename T>
+        class linked_list_node_double
+        {
+        private:
+            T key;
+            linked_list_node<T>* next, previous;
+            public:
+            linked_list_node_double(T key): key(key), next(nullptr), previous(nullptr) {}
         };
     }
 
@@ -52,3 +62,5 @@ namespace psda
 
     
 }
+
+#endif
