@@ -1,6 +1,7 @@
 #ifndef VECTOR_HPP
 #define VECTOR_HPP
 
+#include <iterator>
 #include <cstddef>
 #include <memory>
 
@@ -11,7 +12,8 @@ namespace detail
     //
 }
 
-template <typename T> class vector 
+template <typename T> 
+class vector 
 {
 private:
     T* data_;
@@ -23,6 +25,7 @@ private:
     alloc_type alloc;
 
 public:
+
     vector(): data_(nullptr), size_(0), capacity_(0) {}
     vector(std::size_t count, const T &value): data_(nullptr), size_(0), capacity_(0)
     {
@@ -39,9 +42,39 @@ public:
         alloc_traits::deallocate(alloc, data_, capacity_);
     }
 
+
+    struct Iterator
+    {
+        using iterator_category = std::random_access_iterator_tag;
+        using difference_type = std::ptrdiff_t;
+        using value_type = T;
+        using pointer = value_type*;
+        using reference = value_type&;
+
+        Iterator(pointer ptr): m_ptr(ptr) {}
+
+        reference operator*() const {return *m_ptr;}
+        pointer operator->() const {return m_ptr;}
+
+        Iterator& operator++() {m_ptr++; return *this;}
+        Iterator& operator--() {m_ptr--; return *this;}
+
+        Iterator operator++(int) {Iterator tmp = *this; ++(*this); return tmp;}
+        Iterator operator--(int) {Iterator tmp = *this; --(*this); return tmp;}
+
+        friend bool operator==(const Iterator& a, const Iterator& b) {return a.m_ptr == b.m_ptr;}
+        friend bool operator!=(const Iterator& a, const Iterator& b) {return a.m_ptr != b.m_ptr;}
+
+    private:
+        pointer m_ptr;
+    };
+
     std::size_t size() { return size_; }
 
     T &operator[](std::size_t i) { return data_[i]; }
+
+    Iterator begin() { return Iterator(&data_[0]);}
+    Iterator end() { return Iterator(&data_[size_]);}
 };
 
 } // namespace pdsa
