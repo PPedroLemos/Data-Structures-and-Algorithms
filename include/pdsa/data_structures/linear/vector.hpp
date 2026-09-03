@@ -25,7 +25,6 @@ private:
     alloc_type alloc;
 
 public:
-
     vector(): data_(nullptr), size_(0), capacity_(0) {}
     vector(std::size_t count, const T &value): data_(nullptr), size_(0), capacity_(0)
     {
@@ -42,55 +41,63 @@ public:
         alloc_traits::deallocate(alloc, data_, capacity_);
     }
 
+    struct Iterator;
 
-    struct Iterator
+    std::size_t size() const {return size_;}
+    std::size_t capacity() const {return capacity_;}
+    bool empty() const {return size_ == 0;}
+
+    T &operator[](std::size_t i) {return data_[i];}
+
+    Iterator begin() {return Iterator(data_);}
+    Iterator end()
     {
-        using iterator_category = std::random_access_iterator_tag;
-        using difference_type = std::ptrdiff_t;
-        using value_type = T;
-        using pointer = value_type*;
-        using reference = value_type&;
+        if (data_ == nullptr) return Iterator(nullptr);
+        return Iterator(data_ + size_);
+    }
+};
 
-        Iterator(): m_ptr(nullptr) {}
-        Iterator(pointer ptr): m_ptr(ptr) {}
+template<typename T>
+struct vector<T>::Iterator
+{
+    using iterator_category = std::random_access_iterator_tag;
+    using difference_type = std::ptrdiff_t;
+    using value_type = T;
+    using pointer = value_type*;
+    using reference = value_type&;
 
-        reference operator*() const {return *m_ptr;}
-        pointer operator->() const {return m_ptr;}
+    Iterator(): m_ptr(nullptr) {}
+    Iterator(pointer ptr): m_ptr(ptr) {}
 
-        Iterator& operator++() {m_ptr++; return *this;}
-        Iterator& operator--() {m_ptr--; return *this;}
+    reference operator*() const {return *m_ptr;}
+    pointer operator->() const {return m_ptr;}
 
-        Iterator operator++(int) {Iterator tmp = *this; ++(*this); return tmp;}
-        Iterator operator--(int) {Iterator tmp = *this; --(*this); return tmp;}
+    Iterator& operator++() {m_ptr++; return *this;}
+    Iterator& operator--() {m_ptr--; return *this;}
 
-        friend bool operator==(const Iterator& a, const Iterator& b) {return a.m_ptr == b.m_ptr;}
-        friend bool operator!=(const Iterator& a, const Iterator& b) {return a.m_ptr != b.m_ptr;}
-        friend bool operator<(const Iterator& a, const Iterator& b) {return a.m_ptr < b.m_ptr;}
-        friend bool operator<=(const Iterator& a, const Iterator& b) {return a.m_ptr <= b.m_ptr;}
-        friend bool operator>(const Iterator& a, const Iterator& b) {return a.m_ptr > b.m_ptr;}
-        friend bool operator>=(const Iterator& a, const Iterator& b) {return a.m_ptr >= b.m_ptr;}
+    Iterator operator++(int) {Iterator tmp = *this; ++(*this); return tmp;}
+    Iterator operator--(int) {Iterator tmp = *this; --(*this); return tmp;}
 
-        friend difference_type operator-(const Iterator& a, const Iterator& b) {return a.m_ptr - b.m_ptr;}
+    friend bool operator==(const Iterator& a, const Iterator& b) {return a.m_ptr == b.m_ptr;}
+    friend bool operator!=(const Iterator& a, const Iterator& b) {return a.m_ptr != b.m_ptr;}
+    friend bool operator<(const Iterator& a, const Iterator& b) {return a.m_ptr < b.m_ptr;}
+    friend bool operator<=(const Iterator& a, const Iterator& b) {return a.m_ptr <= b.m_ptr;}
+    friend bool operator>(const Iterator& a, const Iterator& b) {return a.m_ptr > b.m_ptr;}
+    friend bool operator>=(const Iterator& a, const Iterator& b) {return a.m_ptr >= b.m_ptr;}
 
-        Iterator& operator+=(difference_type n) {m_ptr += n; return *this;}
-        Iterator& operator-=(difference_type n) {m_ptr -= n; return *this;}
+    friend difference_type operator-(const Iterator& a, const Iterator& b) {return a.m_ptr - b.m_ptr;}
 
-        Iterator operator+(difference_type n) const {return Iterator(m_ptr + n);}
-        Iterator operator-(difference_type n) const {return Iterator(m_ptr - n);}
-        friend Iterator operator+(difference_type n, Iterator it) {return Iterator(it.m_ptr + n);}
+    Iterator& operator+=(difference_type n) {m_ptr += n; return *this;}
+    Iterator& operator-=(difference_type n) {m_ptr -= n; return *this;}
 
-        reference operator[](difference_type n) const {return *(m_ptr + n);}
+    Iterator operator+(difference_type n) const {return Iterator(m_ptr + n);}
+    Iterator operator-(difference_type n) const {return Iterator(m_ptr - n);}
+    friend Iterator operator+(difference_type n, Iterator it) {return Iterator(it.m_ptr + n);}
 
-    private:
-        pointer m_ptr;
-    };
+    reference operator[](difference_type n) const {return *(m_ptr + n);}
 
-    std::size_t size() { return size_; }
-
-    T &operator[](std::size_t i) { return data_[i]; }
-
-    Iterator begin() { return Iterator(&data_[0]);}
-    Iterator end() { return Iterator(&data_[size_]);}
+private:
+    pointer m_ptr;
 };
 
 } // namespace pdsa
