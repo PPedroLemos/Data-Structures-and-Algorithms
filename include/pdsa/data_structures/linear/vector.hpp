@@ -51,6 +51,7 @@ public:
         using pointer = value_type*;
         using reference = value_type&;
 
+        Iterator(): m_ptr(nullptr) {}
         Iterator(pointer ptr): m_ptr(ptr) {}
 
         reference operator*() const {return *m_ptr;}
@@ -64,6 +65,21 @@ public:
 
         friend bool operator==(const Iterator& a, const Iterator& b) {return a.m_ptr == b.m_ptr;}
         friend bool operator!=(const Iterator& a, const Iterator& b) {return a.m_ptr != b.m_ptr;}
+        friend bool operator<(const Iterator& a, const Iterator& b) {return a.m_ptr < b.m_ptr;}
+        friend bool operator<=(const Iterator& a, const Iterator& b) {return a.m_ptr <= b.m_ptr;}
+        friend bool operator>(const Iterator& a, const Iterator& b) {return a.m_ptr > b.m_ptr;}
+        friend bool operator>=(const Iterator& a, const Iterator& b) {return a.m_ptr >= b.m_ptr;}
+
+        friend difference_type operator-(const Iterator& a, const Iterator& b) {return a.m_ptr - b.m_ptr;}
+
+        Iterator& operator+=(difference_type n) {m_ptr += n; return *this;}
+        Iterator& operator-=(difference_type n) {m_ptr -= n; return *this;}
+
+        Iterator operator+(difference_type n) const {return Iterator(m_ptr + n);}
+        Iterator operator-(difference_type n) const {return Iterator(m_ptr - n);}
+        friend Iterator operator+(difference_type n, Iterator it) {return Iterator(it.m_ptr + n);}
+
+        reference operator[](difference_type n) const {return *(m_ptr + n);}
 
     private:
         pointer m_ptr;
