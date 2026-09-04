@@ -6,16 +6,39 @@ namespace pdsa
 
 namespace detail
 {
-template<typename Iterator>
-void merge()
-{
 
+template<typename Src_Iterator, typename Dst_Iterator>
+void merge(Src_Iterator src_begin, Src_Iterator src_middle, Src_Iterator src_end, Dst_Iterator dst_begin)
+{
+    Src_Iterator i = src_begin;
+    Src_Iterator j = src_middle;
+    Dst_Iterator k = dst_begin;
+    Dst_Iterator dst_end = dst_begin + (src_end - src_begin);
+    
+    for (; k != dst_end; k++) 
+    {
+        if (i >= src_middle) *k = *j++;
+        else if (j >= src_end) *k = *i++;
+        else if (*j < *i) *k = *j++;
+        else *k = *i++;
+    }
 }
 
-template<typename Iterator, typename Dst_Iterator>
-void merge_sort(Iterator src_begin, Iterator src_end, Dst_Iterator dst_begin)
+template<typename Src_Iterator, typename Dst_Iterator>
+void merge_sort(Src_Iterator src_begin, Src_Iterator src_end, Dst_Iterator dst_begin)
 {
-    
+    if (src_end - src_begin <= 1) return;
+
+    auto size = src_end - src_begin;
+
+    Dst_Iterator dst_end = dst_begin + size;
+    Dst_Iterator dst_middle = dst_begin + size/2;
+    Src_Iterator src_middle = src_begin + size/2;
+
+    merge_sort(dst_begin, dst_middle, src_begin);
+    merge_sort(dst_middle, dst_end, src_middle);
+
+    merge(dst_begin, dst_middle, dst_end, src_begin);
 }
 
 }
