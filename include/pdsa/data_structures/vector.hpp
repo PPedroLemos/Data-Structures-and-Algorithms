@@ -32,7 +32,7 @@ private:
         T* new_ptr = alloc_traits::allocate(alloc, new_capacity);
         for(std::size_t i = 0; i < size_; i++) alloc_traits::construct(alloc, new_ptr + i, data_[i]);
         for(std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
-        if (data_ == nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
+        if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
         data_ = new_ptr;
         capacity_ = new_capacity;
     }
