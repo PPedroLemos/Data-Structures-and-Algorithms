@@ -50,7 +50,7 @@ public:
     }
     ~vector()
     {
-        if (size_ == 0) return;
+        if (capacity_ == 0) return;
         for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
         alloc_traits::deallocate(alloc, data_, capacity_);
     }
