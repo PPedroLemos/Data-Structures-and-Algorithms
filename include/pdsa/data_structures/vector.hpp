@@ -37,6 +37,17 @@ private:
         capacity_ = new_capacity;
     }
 
+    void shrink()
+    {
+        std::size_t new_capacity = capacity_/2;
+        T* new_ptr = alloc_traits::allocate(alloc, new_capacity);
+        for(std::size_t i = 0; i < size_; i++) alloc_traits::construct(alloc, new_ptr + i, data_[i]);
+        for(std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
+        if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
+        data_ = new_ptr;
+        capacity_ = new_capacity;
+}
+
 public:
     vector(): data_(nullptr), size_(0), capacity_(0) {}
     vector(std::size_t count, const T &value): data_(nullptr), size_(0), capacity_(0)
@@ -68,6 +79,20 @@ public:
     {
         if (data_ == nullptr) return Iterator(nullptr);
         return Iterator(data_ + size_);
+    }
+
+    void push_back(const T& value)
+    {
+        if (size_ >= capacity_) grow();
+        alloc_traits::construct(alloc, data_ + size_, value);
+        size_++;
+    }
+
+    void pop_back()
+    {
+        alloc_traits::destroy(alloc, data_ + size_ - 1);
+        size_--;
+        if (size_ < capacity_/4) shrink();
     }
 };
 
