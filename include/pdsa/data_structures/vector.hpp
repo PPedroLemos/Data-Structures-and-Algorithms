@@ -66,6 +66,28 @@ public:
         alloc_traits::deallocate(alloc, data_, capacity_);
     }
 
+    // Copy
+
+    vector(const vector& other): size_(other.size_), capacity_(other.capacity_)
+    {
+        data_ = alloc_traits::allocate(alloc, capacity_);
+        for (std::size_t i = 0; i < size_; i++) alloc_traits::construct(alloc,data_ + i, other.data_[i]);
+    }
+
+    vector& operator=(const vector& other)
+    {
+        if (*this == &other) return *this;
+
+        for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
+        if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
+        if (other.data_ != nullptr) data_ = alloc_traits::allocate(alloc, other.capacity_);
+        for (std::size_t i = 0; i < other.size_; i++) alloc_traits::construct(alloc,data_ + i, other.data_[i]);
+        size_ = other.size_;
+        capacity_ = other.capacity_;
+
+        return *this;
+    }
+
     struct Iterator;
 
     std::size_t size() const {return size_;}
