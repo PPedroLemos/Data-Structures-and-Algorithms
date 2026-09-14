@@ -1,3 +1,6 @@
+#ifndef MERGE_SORT_HPP
+#define MERGE_SORT_HPP
+
 #include <iterator>
 #include <memory>
 
@@ -64,3 +67,5 @@ void merge_sort(Iterator begin, Iterator end)
 }
 
 }
+
+#endif
