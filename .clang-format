@@ -1,0 +1,16 @@
+BasedOnStyle: LLVM
+
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+BreakBeforeBraces: Allman
+
+PointerAligment: Left
+ReferenceAligment: Pointer
+
+AllowShortIfStatementsOnASingleLine: AllIfAndEsle
+AllowShortLoopsOnASingleLine: true
+AllowSHortFunctionOnASingleLine: InLine
+
+ColummLimit: 100
