@@ -66,6 +66,13 @@ public:
         alloc_traits::deallocate(alloc, data_, capacity_);
     }
 
+    bool operator==(const vector& other)
+    {
+        if (this->size_ != other.size_) return false;
+        for (std::size_t i = 0; i < this->size_; i++) if (this[i] != other[i]) return false;
+        return true;
+    }
+
     // Copy
 
     vector(const vector& other): size_(other.size_), capacity_(other.capacity_)
@@ -76,7 +83,7 @@ public:
 
     vector& operator=(const vector& other)
     {
-        if (*this == &other) return *this;
+        if (this == &other) return *this;
 
         for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
         if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
