@@ -6,11 +6,11 @@ UseTab: Never
 
 BreakBeforeBraces: Allman
 
-PointerAligment: Left
-ReferenceAligment: Pointer
+PointerAlignment: Left
+ReferenceAlignment: Pointer
 
-AllowShortIfStatementsOnASingleLine: AllIfAndEsle
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
 AllowShortLoopsOnASingleLine: true
-AllowSHortFunctionOnASingleLine: InLine
+AllowShortFunctionsOnASingleLine: All
 
-ColummLimit: 100
+ColumnLimit: 100
