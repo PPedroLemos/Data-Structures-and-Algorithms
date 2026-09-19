@@ -15,7 +15,7 @@ namespace detail
 
 template <typename T> class vector
 {
-private:
+  private:
     T* data_;
     std::size_t size_;
     std::size_t capacity_;
@@ -50,7 +50,7 @@ private:
         capacity_ = new_capacity;
     }
 
-public:
+  public:
     vector() : data_(nullptr), size_(0), capacity_(0) {}
     vector(std::size_t count, const T& value) : data_(nullptr), size_(0), capacity_(0)
     {
@@ -96,6 +96,34 @@ public:
             alloc_traits::construct(alloc, data_ + i, other.data_[i]);
         size_ = other.size_;
         capacity_ = other.capacity_;
+
+        return *this;
+    }
+
+    // Move
+
+    vector(vector&& other) noexcept
+        : data_(other.data_), size_(other.size_), capacity_(other.capacity_)
+    {
+        other.data_ = nullptr;
+        other.size_ = 0;
+        other.capacity_ = 0;
+    }
+
+    vector& operator=(vector&& other) noexcept
+    {
+        if (this == &other) return *this;
+
+        for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
+        if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
+
+        data_ = other.data_;
+        size_ = other.size_;
+        capacity_ = other.capacity_;
+
+        other.data_ = nullptr;
+        other.size_ = 0;
+        other.capacity_ = 0;
 
         return *this;
     }
@@ -198,7 +226,7 @@ template <typename T> struct vector<T>::Iterator
 
     reference operator[](difference_type n) const { return *(m_ptr + n); }
 
-private:
+  private:
     pointer m_ptr;
 };
 
