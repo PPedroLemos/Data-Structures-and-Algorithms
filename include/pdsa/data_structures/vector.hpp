@@ -1,19 +1,19 @@
 #ifndef VECTOR_HPP
 #define VECTOR_HPP
 
-#include <iterator>
 #include <cstddef>
+#include <iterator>
 #include <memory>
 
-namespace pdsa {
-
-namespace detail 
+namespace pdsa
 {
-    //
+
+namespace detail
+{
+//
 }
 
-template <typename T> 
-class vector 
+template <typename T> class vector
 {
 private:
     T* data_;
@@ -28,10 +28,11 @@ private:
     {
         std::size_t new_capacity;
         if (capacity_ == 0) new_capacity = 1;
-        else new_capacity = capacity_*2;
+        else new_capacity = capacity_ * 2;
         T* new_ptr = alloc_traits::allocate(alloc, new_capacity);
-        for(std::size_t i = 0; i < size_; i++) alloc_traits::construct(alloc, new_ptr + i, data_[i]);
-        for(std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
+        for (std::size_t i = 0; i < size_; i++)
+            alloc_traits::construct(alloc, new_ptr + i, data_[i]);
+        for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
         if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
         data_ = new_ptr;
         capacity_ = new_capacity;
@@ -39,20 +40,21 @@ private:
 
     void shrink()
     {
-        std::size_t new_capacity = capacity_/2;
+        std::size_t new_capacity = capacity_ / 2;
         T* new_ptr = alloc_traits::allocate(alloc, new_capacity);
-        for(std::size_t i = 0; i < size_; i++) alloc_traits::construct(alloc, new_ptr + i, data_[i]);
-        for(std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
+        for (std::size_t i = 0; i < size_; i++)
+            alloc_traits::construct(alloc, new_ptr + i, data_[i]);
+        for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
         if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
         data_ = new_ptr;
         capacity_ = new_capacity;
-}
+    }
 
 public:
-    vector(): data_(nullptr), size_(0), capacity_(0) {}
-    vector(std::size_t count, const T &value): data_(nullptr), size_(0), capacity_(0)
+    vector() : data_(nullptr), size_(0), capacity_(0) {}
+    vector(std::size_t count, const T& value) : data_(nullptr), size_(0), capacity_(0)
     {
-        if (count == 0)return;
+        if (count == 0) return;
         size_ = count;
         capacity_ = 1;
         while (capacity_ < count) capacity_ *= 2;
@@ -69,16 +71,18 @@ public:
     bool operator==(const vector& other)
     {
         if (this->size_ != other.size_) return false;
-        for (std::size_t i = 0; i < this->size_; i++) if (this[i] != other[i]) return false;
+        for (std::size_t i = 0; i < this->size_; i++)
+            if (this[i] != other[i]) return false;
         return true;
     }
 
     // Copy
 
-    vector(const vector& other): size_(other.size_), capacity_(other.capacity_)
+    vector(const vector& other) : size_(other.size_), capacity_(other.capacity_)
     {
         data_ = alloc_traits::allocate(alloc, capacity_);
-        for (std::size_t i = 0; i < size_; i++) alloc_traits::construct(alloc,data_ + i, other.data_[i]);
+        for (std::size_t i = 0; i < size_; i++)
+            alloc_traits::construct(alloc, data_ + i, other.data_[i]);
     }
 
     vector& operator=(const vector& other)
@@ -88,7 +92,8 @@ public:
         for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
         if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
         if (other.data_ != nullptr) data_ = alloc_traits::allocate(alloc, other.capacity_);
-        for (std::size_t i = 0; i < other.size_; i++) alloc_traits::construct(alloc,data_ + i, other.data_[i]);
+        for (std::size_t i = 0; i < other.size_; i++)
+            alloc_traits::construct(alloc, data_ + i, other.data_[i]);
         size_ = other.size_;
         capacity_ = other.capacity_;
 
@@ -97,14 +102,14 @@ public:
 
     struct Iterator;
 
-    std::size_t size() const {return size_;}
-    std::size_t capacity() const {return capacity_;}
-    bool empty() const {return size_ == 0;}
+    std::size_t size() const { return size_; }
+    std::size_t capacity() const { return capacity_; }
+    bool empty() const { return size_ == 0; }
 
-    T &operator[](std::size_t i) {return data_[i];}
-    const T &operator[](std::size_t i) const {return data_[i];}
+    T& operator[](std::size_t i) { return data_[i]; }
+    const T& operator[](std::size_t i) const { return data_[i]; }
 
-    Iterator begin() {return Iterator(data_);}
+    Iterator begin() { return Iterator(data_); }
     Iterator end()
     {
         if (data_ == nullptr) return Iterator(nullptr);
@@ -122,12 +127,11 @@ public:
     {
         alloc_traits::destroy(alloc, data_ + size_ - 1);
         size_--;
-        if (size_ < capacity_/4) shrink();
+        if (size_ < capacity_ / 4) shrink();
     }
 };
 
-template<typename T>
-struct vector<T>::Iterator
+template <typename T> struct vector<T>::Iterator
 {
     using iterator_category = std::random_access_iterator_tag;
     using difference_type = std::ptrdiff_t;
@@ -135,35 +139,64 @@ struct vector<T>::Iterator
     using pointer = value_type*;
     using reference = value_type&;
 
-    Iterator(): m_ptr(nullptr) {}
-    Iterator(pointer ptr): m_ptr(ptr) {}
+    Iterator() : m_ptr(nullptr) {}
+    Iterator(pointer ptr) : m_ptr(ptr) {}
 
-    reference operator*() const {return *m_ptr;}
-    pointer operator->() const {return m_ptr;}
+    reference operator*() const { return *m_ptr; }
+    pointer operator->() const { return m_ptr; }
 
-    Iterator& operator++() {m_ptr++; return *this;}
-    Iterator& operator--() {m_ptr--; return *this;}
+    Iterator& operator++()
+    {
+        m_ptr++;
+        return *this;
+    }
+    Iterator& operator--()
+    {
+        m_ptr--;
+        return *this;
+    }
 
-    Iterator operator++(int) {Iterator tmp = *this; ++(*this); return tmp;}
-    Iterator operator--(int) {Iterator tmp = *this; --(*this); return tmp;}
+    Iterator operator++(int)
+    {
+        Iterator tmp = *this;
+        ++(*this);
+        return tmp;
+    }
+    Iterator operator--(int)
+    {
+        Iterator tmp = *this;
+        --(*this);
+        return tmp;
+    }
 
-    friend bool operator==(const Iterator& a, const Iterator& b) {return a.m_ptr == b.m_ptr;}
-    friend bool operator!=(const Iterator& a, const Iterator& b) {return a.m_ptr != b.m_ptr;}
-    friend bool operator<(const Iterator& a, const Iterator& b) {return a.m_ptr < b.m_ptr;}
-    friend bool operator<=(const Iterator& a, const Iterator& b) {return a.m_ptr <= b.m_ptr;}
-    friend bool operator>(const Iterator& a, const Iterator& b) {return a.m_ptr > b.m_ptr;}
-    friend bool operator>=(const Iterator& a, const Iterator& b) {return a.m_ptr >= b.m_ptr;}
+    friend bool operator==(const Iterator& a, const Iterator& b) { return a.m_ptr == b.m_ptr; }
+    friend bool operator!=(const Iterator& a, const Iterator& b) { return a.m_ptr != b.m_ptr; }
+    friend bool operator<(const Iterator& a, const Iterator& b) { return a.m_ptr < b.m_ptr; }
+    friend bool operator<=(const Iterator& a, const Iterator& b) { return a.m_ptr <= b.m_ptr; }
+    friend bool operator>(const Iterator& a, const Iterator& b) { return a.m_ptr > b.m_ptr; }
+    friend bool operator>=(const Iterator& a, const Iterator& b) { return a.m_ptr >= b.m_ptr; }
 
-    friend difference_type operator-(const Iterator& a, const Iterator& b) {return a.m_ptr - b.m_ptr;}
+    friend difference_type operator-(const Iterator& a, const Iterator& b)
+    {
+        return a.m_ptr - b.m_ptr;
+    }
 
-    Iterator& operator+=(difference_type n) {m_ptr += n; return *this;}
-    Iterator& operator-=(difference_type n) {m_ptr -= n; return *this;}
+    Iterator& operator+=(difference_type n)
+    {
+        m_ptr += n;
+        return *this;
+    }
+    Iterator& operator-=(difference_type n)
+    {
+        m_ptr -= n;
+        return *this;
+    }
 
-    Iterator operator+(difference_type n) const {return Iterator(m_ptr + n);}
-    Iterator operator-(difference_type n) const {return Iterator(m_ptr - n);}
-    friend Iterator operator+(difference_type n, Iterator it) {return Iterator(it.m_ptr + n);}
+    Iterator operator+(difference_type n) const { return Iterator(m_ptr + n); }
+    Iterator operator-(difference_type n) const { return Iterator(m_ptr - n); }
+    friend Iterator operator+(difference_type n, Iterator it) { return Iterator(it.m_ptr + n); }
 
-    reference operator[](difference_type n) const {return *(m_ptr + n);}
+    reference operator[](difference_type n) const { return *(m_ptr + n); }
 
 private:
     pointer m_ptr;
