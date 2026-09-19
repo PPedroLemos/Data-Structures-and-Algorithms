@@ -102,6 +102,7 @@ public:
     bool empty() const {return size_ == 0;}
 
     T &operator[](std::size_t i) {return data_[i];}
+    const T &operator[](std::size_t i) const {return data_[i];}
 
     Iterator begin() {return Iterator(data_);}
     Iterator end()
