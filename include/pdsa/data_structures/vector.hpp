@@ -129,6 +129,7 @@ template <typename T> class vector
     }
 
     struct Iterator;
+    struct ConstIterator;
 
     std::size_t size() const { return size_; }
     std::size_t capacity() const { return capacity_; }
@@ -159,8 +160,11 @@ template <typename T> class vector
     }
 };
 
-template <typename T> struct vector<T>::Iterator
+template <typename T>
+struct vector<T>::Iterator
 {
+    friend struct ConstIterator;
+
     using iterator_category = std::random_access_iterator_tag;
     using difference_type = std::ptrdiff_t;
     using value_type = T;
@@ -169,6 +173,80 @@ template <typename T> struct vector<T>::Iterator
 
     Iterator() : m_ptr(nullptr) {}
     Iterator(pointer ptr) : m_ptr(ptr) {}
+
+    reference operator*() const { return *m_ptr; }
+    pointer operator->() const { return m_ptr; }
+
+    Iterator& operator++()
+    {
+        m_ptr++;
+        return *this;
+    }
+    Iterator& operator--()
+    {
+        m_ptr--;
+        return *this;
+    }
+
+    Iterator operator++(int)
+    {
+        Iterator tmp = *this;
+        ++(*this);
+        return tmp;
+    }
+    Iterator operator--(int)
+    {
+        Iterator tmp = *this;
+        --(*this);
+        return tmp;
+    }
+
+    friend bool operator==(const Iterator& a, const Iterator& b) { return a.m_ptr == b.m_ptr; }
+    friend bool operator!=(const Iterator& a, const Iterator& b) { return a.m_ptr != b.m_ptr; }
+    friend bool operator<(const Iterator& a, const Iterator& b) { return a.m_ptr < b.m_ptr; }
+    friend bool operator<=(const Iterator& a, const Iterator& b) { return a.m_ptr <= b.m_ptr; }
+    friend bool operator>(const Iterator& a, const Iterator& b) { return a.m_ptr > b.m_ptr; }
+    friend bool operator>=(const Iterator& a, const Iterator& b) { return a.m_ptr >= b.m_ptr; }
+
+    friend difference_type operator-(const Iterator& a, const Iterator& b)
+    {
+        return a.m_ptr - b.m_ptr;
+    }
+
+    Iterator& operator+=(difference_type n)
+    {
+        m_ptr += n;
+        return *this;
+    }
+    Iterator& operator-=(difference_type n)
+    {
+        m_ptr -= n;
+        return *this;
+    }
+
+    Iterator operator+(difference_type n) const { return Iterator(m_ptr + n); }
+    Iterator operator-(difference_type n) const { return Iterator(m_ptr - n); }
+    friend Iterator operator+(difference_type n, Iterator it) { return Iterator(it.m_ptr + n); }
+
+    reference operator[](difference_type n) const { return *(m_ptr + n); }
+
+  private:
+    pointer m_ptr;
+};
+
+template <typename T>
+struct vector<T>::ConstIterator
+{
+    using iterator_category = std::random_access_iterator_tag;
+    using difference_type = std::ptrdiff_t;
+    using value_type =  T;
+    using pointer = const value_type*;
+    using reference = const value_type&;
+
+    ConstIterator() : m_ptr(nullptr) {}
+    ConstIterator(pointer ptr) : m_ptr(ptr) {}
+
+    ConstIterator(const vector::Iterator& it) : m_ptr(it.m_ptr) {}
 
     reference operator*() const { return *m_ptr; }
     pointer operator->() const { return m_ptr; }
