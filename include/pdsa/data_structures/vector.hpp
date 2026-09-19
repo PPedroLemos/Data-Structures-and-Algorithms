@@ -145,6 +145,20 @@ template <typename T> class vector
         return Iterator(data_ + size_);
     }
 
+    ConstIterator begin() const {return ConstIterator(data_);}
+    ConstIterator end() const
+    {
+        if (data_ == nullptr) return ConstIterator(nullptr);
+        return ConstIterator(data_ + size_);
+    }
+
+    ConstIterator cbegin() const {return ConstIterator(data_);}
+    ConstIterator cend() const
+    {
+        if (data_ == nullptr) return ConstIterator(nullptr);
+        return ConstIterator(data_ + size_);
+    }
+
     void push_back(const T& value)
     {
         if (size_ >= capacity_) grow();
