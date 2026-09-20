@@ -145,14 +145,14 @@ template <typename T> class vector
         return Iterator(data_ + size_);
     }
 
-    ConstIterator begin() const {return ConstIterator(data_);}
+    ConstIterator begin() const { return ConstIterator(data_); }
     ConstIterator end() const
     {
         if (data_ == nullptr) return ConstIterator(nullptr);
         return ConstIterator(data_ + size_);
     }
 
-    ConstIterator cbegin() const {return ConstIterator(data_);}
+    ConstIterator cbegin() const { return ConstIterator(data_); }
     ConstIterator cend() const
     {
         if (data_ == nullptr) return ConstIterator(nullptr);
@@ -172,10 +172,15 @@ template <typename T> class vector
         size_--;
         if (size_ < capacity_ / 4) shrink();
     }
+
+    void shrink_to_fit()
+    {
+        if (data_ != nullptr) alloc_traits::deallocate(alloc, data_ + size(), capacity_ - size_);
+        capacity_ = size_;
+    }
 };
 
-template <typename T>
-struct vector<T>::Iterator
+template <typename T> struct vector<T>::Iterator
 {
     friend struct ConstIterator;
 
@@ -248,12 +253,11 @@ struct vector<T>::Iterator
     pointer m_ptr;
 };
 
-template <typename T>
-struct vector<T>::ConstIterator
+template <typename T> struct vector<T>::ConstIterator
 {
     using iterator_category = std::random_access_iterator_tag;
     using difference_type = std::ptrdiff_t;
-    using value_type =  T;
+    using value_type = T;
     using pointer = const value_type*;
     using reference = const value_type&;
 
@@ -289,12 +293,30 @@ struct vector<T>::ConstIterator
         return tmp;
     }
 
-    friend bool operator==(const ConstIterator& a, const ConstIterator& b) { return a.m_ptr == b.m_ptr; }
-    friend bool operator!=(const ConstIterator& a, const ConstIterator& b) { return a.m_ptr != b.m_ptr; }
-    friend bool operator<(const ConstIterator& a, const ConstIterator& b) { return a.m_ptr < b.m_ptr; }
-    friend bool operator<=(const ConstIterator& a, const ConstIterator& b) { return a.m_ptr <= b.m_ptr; }
-    friend bool operator>(const ConstIterator& a, const ConstIterator& b) { return a.m_ptr > b.m_ptr; }
-    friend bool operator>=(const ConstIterator& a, const ConstIterator& b) { return a.m_ptr >= b.m_ptr; }
+    friend bool operator==(const ConstIterator& a, const ConstIterator& b)
+    {
+        return a.m_ptr == b.m_ptr;
+    }
+    friend bool operator!=(const ConstIterator& a, const ConstIterator& b)
+    {
+        return a.m_ptr != b.m_ptr;
+    }
+    friend bool operator<(const ConstIterator& a, const ConstIterator& b)
+    {
+        return a.m_ptr < b.m_ptr;
+    }
+    friend bool operator<=(const ConstIterator& a, const ConstIterator& b)
+    {
+        return a.m_ptr <= b.m_ptr;
+    }
+    friend bool operator>(const ConstIterator& a, const ConstIterator& b)
+    {
+        return a.m_ptr > b.m_ptr;
+    }
+    friend bool operator>=(const ConstIterator& a, const ConstIterator& b)
+    {
+        return a.m_ptr >= b.m_ptr;
+    }
 
     friend difference_type operator-(const ConstIterator& a, const ConstIterator& b)
     {
@@ -314,7 +336,10 @@ struct vector<T>::ConstIterator
 
     ConstIterator operator+(difference_type n) const { return ConstIterator(m_ptr + n); }
     ConstIterator operator-(difference_type n) const { return ConstIterator(m_ptr - n); }
-    friend ConstIterator operator+(difference_type n, ConstIterator it) { return ConstIterator(it.m_ptr + n); }
+    friend ConstIterator operator+(difference_type n, ConstIterator it)
+    {
+        return ConstIterator(it.m_ptr + n);
+    }
 
     reference operator[](difference_type n) const { return *(m_ptr + n); }
 
