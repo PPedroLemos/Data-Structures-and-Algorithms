@@ -61,7 +61,7 @@ template <typename T> class vector
     {
         if (this->size_ != other.size_) return false;
         for (std::size_t i = 0; i < this->size_; i++)
-            if (*this[i] != other[i]) return false;
+            if ((*this)[i] != other[i]) return false;
         return true;
     }
 
