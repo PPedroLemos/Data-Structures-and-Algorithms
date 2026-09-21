@@ -188,6 +188,31 @@ template <typename T> class vector
         if (i >= size_) throw std::out_of_range("pdsa::vector::at: index out of range");
         return data_[i];
     }
+
+    T& back()
+    {
+        if (empty()) throw std::out_of_range("pdsa::vector::back: vector is empty");
+        return data_[0];
+    }
+
+    const T& back() const
+    {
+        if (empty()) throw std::out_of_range("pdsa::vector::back: vector is empty");
+        return data_[0];
+    }
+
+    T& front()
+    {
+        if (empty()) throw std::out_of_range("pdsa::vector::front: vector is empty");
+        return data_[size_ - 1];
+    }
+
+    const T& front() const
+    {
+        if (empty()) throw std::out_of_range("pdsa::vector::front: vector is empty");
+        return data_[size_ - 1];
+    }
+
 };
 
 template <typename T> struct vector<T>::Iterator
