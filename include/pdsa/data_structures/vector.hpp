@@ -38,18 +38,6 @@ template <typename T> class vector
         capacity_ = new_capacity;
     }
 
-    void shrink()
-    {
-        std::size_t new_capacity = capacity_ / 2;
-        T* new_ptr = alloc_traits::allocate(alloc, new_capacity);
-        for (std::size_t i = 0; i < size_; i++)
-            alloc_traits::construct(alloc, new_ptr + i, data_[i]);
-        for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
-        if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
-        data_ = new_ptr;
-        capacity_ = new_capacity;
-    }
-
   public:
     vector() : data_(nullptr), size_(0), capacity_(0) {}
     vector(std::size_t count, const T& value) : data_(nullptr), size_(0), capacity_(0)
@@ -170,12 +158,15 @@ template <typename T> class vector
     {
         alloc_traits::destroy(alloc, data_ + size_ - 1);
         size_--;
-        if (size_ < capacity_ / 4) shrink();
     }
 
     void shrink_to_fit()
     {
-        if (data_ != nullptr) alloc_traits::deallocate(alloc, data_ + size(), capacity_ - size_);
+        T* new_ptr = alloc_traits::allocate(alloc, size_);
+        for (std::size_t i = 0; i < size_; i++) new_ptr[i] = data_[i];
+        for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
+        if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
+        data_ = new_ptr;
         capacity_ = size_;
     }
 };
