@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <iterator>
 #include <memory>
+#include <stdexcept>
 
 namespace pdsa
 {
@@ -168,6 +169,18 @@ template <typename T> class vector
         if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
         data_ = new_ptr;
         capacity_ = size_;
+    }
+
+    T& at(std::size_t i)
+    {
+        if (i >= size_) throw std::out_of_range("pdsa::vector::at: index out of range");
+        return data_[i];
+    }
+
+    const T& at(std::size_t i) const
+    {
+        if (i >= size_) throw std::out_of_range("pdsa::vector::at: index out of range");
+        return data_[i];
     }
 };
 
