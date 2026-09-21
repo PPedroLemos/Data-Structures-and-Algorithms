@@ -81,6 +81,7 @@ template <typename T> class vector
 
         for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
         if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
+        data_ = nullptr;
         if (other.data_ != nullptr) data_ = alloc_traits::allocate(alloc, other.capacity_);
         for (std::size_t i = 0; i < other.size_; i++)
             alloc_traits::construct(alloc, data_ + i, other.data_[i]);
