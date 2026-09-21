@@ -69,7 +69,8 @@ template <typename T> class vector
 
     vector(const vector& other) : size_(other.size_), capacity_(other.capacity_)
     {
-        data_ = alloc_traits::allocate(alloc, capacity_);
+        if (other.size_ != 0) data_ = alloc_traits::allocate(alloc, capacity_);
+        else data_ = nullptr;
         for (std::size_t i = 0; i < size_; i++)
             alloc_traits::construct(alloc, data_ + i, other.data_[i]);
     }
