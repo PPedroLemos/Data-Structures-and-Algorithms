@@ -61,7 +61,7 @@ template <typename T> class vector
     {
         if (this->size_ != other.size_) return false;
         for (std::size_t i = 0; i < this->size_; i++)
-            if (this[i] != other[i]) return false;
+            if (*this[i] != other[i]) return false;
         return true;
     }
 
@@ -163,14 +163,18 @@ template <typename T> class vector
 
     void clear()
     {
+
         for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
         size_ = 0;
     }
 
     void shrink_to_fit()
     {
-        T* new_ptr = alloc_traits::allocate(alloc, size_);
-        for (std::size_t i = 0; i < size_; i++) new_ptr[i] = data_[i];
+        if (size_ == capacity_) return;
+        T* new_ptr = nullptr;
+        if (size_ != 0) new_ptr = alloc_traits::allocate(alloc, size_);
+        for (std::size_t i = 0; i < size_; i++)
+            alloc_traits::construct(alloc, new_ptr + i, data_[i]);
         for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
         if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
         data_ = new_ptr;
@@ -189,30 +193,29 @@ template <typename T> class vector
         return data_[i];
     }
 
-    T& back()
-    {
-        if (empty()) throw std::out_of_range("pdsa::vector::back: vector is empty");
-        return data_[0];
-    }
-
-    const T& back() const
-    {
-        if (empty()) throw std::out_of_range("pdsa::vector::back: vector is empty");
-        return data_[0];
-    }
-
     T& front()
     {
         if (empty()) throw std::out_of_range("pdsa::vector::front: vector is empty");
-        return data_[size_ - 1];
+        return data_[0];
     }
 
     const T& front() const
     {
         if (empty()) throw std::out_of_range("pdsa::vector::front: vector is empty");
+        return data_[0];
+    }
+
+    T& back()
+    {
+        if (empty()) throw std::out_of_range("pdsa::vector::back: vector is empty");
         return data_[size_ - 1];
     }
 
+    const T& back() const
+    {
+        if (empty()) throw std::out_of_range("pdsa::vector::back: vector is empty");
+        return data_[size_ - 1];
+    }
 };
 
 template <typename T> struct vector<T>::Iterator
