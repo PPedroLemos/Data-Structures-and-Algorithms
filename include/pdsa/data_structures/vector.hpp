@@ -161,6 +161,12 @@ template <typename T> class vector
         size_--;
     }
 
+    void clear()
+    {
+        for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
+        size_ = 0;
+    }
+
     void shrink_to_fit()
     {
         T* new_ptr = alloc_traits::allocate(alloc, size_);
