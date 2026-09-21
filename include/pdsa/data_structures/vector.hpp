@@ -57,7 +57,7 @@ template <typename T> class vector
         alloc_traits::deallocate(alloc, data_, capacity_);
     }
 
-    bool operator==(const vector& other)
+    bool operator==(const vector& other) const
     {
         if (this->size_ != other.size_) return false;
         for (std::size_t i = 0; i < this->size_; i++)
