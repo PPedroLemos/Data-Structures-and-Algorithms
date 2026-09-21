@@ -123,6 +123,8 @@ template <typename T> class vector
     std::size_t size() const { return size_; }
     std::size_t capacity() const { return capacity_; }
     bool empty() const { return size_ == 0; }
+    T* data() { return data_; }
+    const T* data() const { return data_; }
 
     T& operator[](std::size_t i) { return data_[i]; }
     const T& operator[](std::size_t i) const { return data_[i]; }
