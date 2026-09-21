@@ -157,6 +157,7 @@ template <typename T> class vector
 
     void pop_back()
     {
+        if (size_ == 0) throw std::out_of_range("pdsa::vector::pop_back: vector is empty");
         alloc_traits::destroy(alloc, data_ + size_ - 1);
         size_--;
     }
