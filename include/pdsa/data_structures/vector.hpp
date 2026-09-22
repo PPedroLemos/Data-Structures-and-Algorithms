@@ -12,13 +12,23 @@ namespace pdsa
 
 namespace detail
 {
-//
+    template<typename T>
+    T min(T a, T b)
+    {
+        if (b < a) return b;
+        return a;
+    }
+
+    template<typename T>
+    T max(T a, T b) 
+    {
+    min(b, a);
+    }
 }
 
 template <typename T> class vector
 {
   private:
-
     T* data_;
     std::size_t size_;
     std::size_t capacity_;
@@ -47,7 +57,7 @@ template <typename T> class vector
             throw;
         }
         for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
-        if(data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
+        if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
         data_ = new_ptr;
         capacity_ = new_capacity;
     }
@@ -55,12 +65,10 @@ template <typename T> class vector
     void grow()
     {
         if (capacity_ == 0) reallocate(1);
-        else reallocate(capacity_*2);
+        else reallocate(capacity_ * 2);
     }
 
-
   public:
-
     vector() : data_(nullptr), size_(0), capacity_(0) {}
 
     vector(std::size_t count, const T& value) : data_(nullptr), size_(0), capacity_(0)
@@ -274,6 +282,74 @@ template <typename T> class vector
     {
         if (new_capacity <= capacity_) return;
         reallocate(new_capacity);
+    }
+
+    void resize(std::size_t new_size)
+    {
+        if (new_size == size_) return;
+        if (new_size < size_)
+        {
+            for (std::size_t i = new_size; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
+            size_ = new_size;
+        }
+        else if (new_size > size_)
+        {
+            if (new_size > capacity_)
+            {
+                std::size_t new_capacity = detail::max<size_t>(capacity_, 1);
+                while (new_capacity < new_size) new_capacity *= 2;
+                reallocate(new_capacity);
+            }
+            std::size_t copied_size = size_;
+            try
+            {
+                while (copied_size < new_size)
+                {
+                    alloc_traits::construct(alloc, data_ + copied_size);
+                    ++copied_size;
+                }
+            }
+            catch (...)
+            {
+                for (std::size_t i = size_; i < copied_size; i++) alloc_traits::destroy(alloc, data_ + i);
+                throw;
+            }
+            size_ = new_size;
+        }
+    }
+
+    void resize(std::size_t new_size, const T& value) 
+    {
+        if (new_size == size_) return;
+        if (new_size < size_)
+        {
+            for (std::size_t i = new_size; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
+            size_ = new_size;
+        }
+        else if (new_size > size_)
+        {
+            if (new_size > capacity_)
+            {
+                std::size_t new_capacity = detail::max<size_t>(capacity_, 1);
+                while (new_capacity < new_size) new_capacity *= 2;
+                reallocate(new_capacity);
+            }
+            std::size_t copied_size = size_;
+            try
+            {
+                while (copied_size < new_size)
+                {
+                    alloc_traits::construct(alloc, data_ + copied_size, value);
+                    ++copied_size;
+                }
+            }
+            catch (...)
+            {
+                for (std::size_t i = size_; i < copied_size; i++) alloc_traits::destroy(alloc, data_ + i);
+                throw;
+            }
+            size_ = new_size;
+        }
     }
 
     T& at(std::size_t i)
