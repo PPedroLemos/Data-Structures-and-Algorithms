@@ -146,12 +146,24 @@ template <typename T> class vector
 
     // Copy
 
-    vector(const vector& other) : size_(other.size_), capacity_(other.capacity_)
+    vector(const vector& other) : data_(nullptr), size_(0), capacity_(0)
     {
-        if (other.size_ != 0) data_ = alloc_traits::allocate(alloc, capacity_);
-        else data_ = nullptr;
-        for (std::size_t i = 0; i < size_; i++)
-            alloc_traits::construct(alloc, data_ + i, other.data_[i]);
+        if (other.data_ != nullptr) data_ = alloc_traits::allocate(alloc, other.capacity_);
+        capacity_ = other.capacity_;
+        try
+        {
+            for (std::size_t i = 0; i < other.size_; i++)
+            {
+                alloc_traits::construct(alloc, data_ + size_, other.data_[i]);
+                ++size_;
+            }
+        }
+        catch (...)
+        {
+            for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
+            if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
+            throw;
+        }
     }
 
     vector& operator=(const vector& other)
