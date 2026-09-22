@@ -20,9 +20,10 @@ namespace detail
     }
 
     template<typename T>
-    T max(T a, T b) 
+    T max(T a, T b)
     {
-    min(b, a);
+        if (a < b) return b;
+        return a;
     }
 }
 
