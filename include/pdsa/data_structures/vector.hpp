@@ -297,7 +297,7 @@ template <typename T> class vector
         {
             if (new_size > capacity_)
             {
-                std::size_t new_capacity = detail::max<size_t>(capacity_, 1);
+                std::size_t new_capacity = detail::max<std::size_t>(capacity_, 1);
                 while (new_capacity < new_size) new_capacity *= 2;
                 reallocate(new_capacity);
             }
@@ -331,7 +331,7 @@ template <typename T> class vector
         {
             if (new_size > capacity_)
             {
-                std::size_t new_capacity = detail::max<size_t>(capacity_, 1);
+                std::size_t new_capacity = detail::max<std::size_t>(capacity_, 1);
                 while (new_capacity < new_size) new_capacity *= 2;
                 reallocate(new_capacity);
             }
