@@ -18,6 +18,7 @@ namespace detail
 template <typename T> class vector
 {
   private:
+
     T* data_;
     std::size_t size_;
     std::size_t capacity_;
@@ -26,22 +27,42 @@ template <typename T> class vector
     using alloc_traits = std::allocator_traits<alloc_type>;
     alloc_type alloc;
 
-    void grow()
+    void reallocate(std::size_t new_capacity)
     {
-        std::size_t new_capacity;
-        if (capacity_ == 0) new_capacity = 1;
-        else new_capacity = capacity_ * 2;
-        T* new_ptr = alloc_traits::allocate(alloc, new_capacity);
-        for (std::size_t i = 0; i < size_; i++)
-            alloc_traits::construct(alloc, new_ptr + i, data_[i]);
+        T* new_ptr = nullptr;
+        if (new_capacity != 0) new_ptr = alloc_traits::allocate(alloc, new_capacity);
+        std::size_t copied_size = 0;
+        try
+        {
+            while (copied_size < size_)
+            {
+                alloc_traits::construct(alloc, new_ptr + copied_size, data_[copied_size]);
+                ++copied_size;
+            }
+        }
+        catch (...)
+        {
+            for (std::size_t i = 0; i < copied_size; i++) alloc_traits::destroy(alloc, new_ptr + i);
+            alloc_traits::deallocate(alloc, new_ptr, new_capacity);
+            throw;
+        }
         for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
-        if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
+        if(data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
         data_ = new_ptr;
         capacity_ = new_capacity;
     }
 
+    void grow()
+    {
+        if (capacity_ == 0) reallocate(1);
+        else reallocate(capacity_*2);
+    }
+
+
   public:
+
     vector() : data_(nullptr), size_(0), capacity_(0) {}
+
     vector(std::size_t count, const T& value) : data_(nullptr), size_(0), capacity_(0)
     {
         if (count == 0) return;
@@ -63,6 +84,7 @@ template <typename T> class vector
             throw;
         }
     }
+
     vector(std::size_t count) : data_(nullptr), size_(0), capacity_(0)
     {
         if (count == 0) return;
@@ -84,6 +106,7 @@ template <typename T> class vector
             throw;
         }
     }
+
     vector(std::initializer_list<T> initializer_list) : data_(nullptr), size_(0), capacity_(0)
     {
         if (initializer_list.size() == 0) return;
@@ -105,6 +128,7 @@ template <typename T> class vector
             throw;
         }
     }
+
     ~vector()
     {
         if (capacity_ == 0) return;
@@ -231,39 +255,13 @@ template <typename T> class vector
     void shrink_to_fit()
     {
         if (size_ == capacity_) return;
-        T* new_ptr = nullptr;
-        if (size_ != 0) new_ptr = alloc_traits::allocate(alloc, size_);
-        for (std::size_t i = 0; i < size_; i++)
-            alloc_traits::construct(alloc, new_ptr + i, data_[i]);
-        for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
-        if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
-        data_ = new_ptr;
-        capacity_ = size_;
+        reallocate(size_);
     }
 
     void reserve(std::size_t new_capacity)
     {
         if (new_capacity <= capacity_) return;
-        T* new_ptr = alloc_traits::allocate(alloc, new_capacity);
-        std::size_t copied_size = 0;
-        try
-        {
-            while (copied_size < size_)
-            {
-                alloc_traits::construct(alloc, new_ptr + copied_size, data_[copied_size]);
-                ++copied_size;
-            }
-        }
-        catch (...)
-        {
-            for (std::size_t i = 0; i < copied_size; i++) alloc_traits::destroy(alloc, new_ptr + i);
-            alloc_traits::deallocate(alloc, new_ptr, new_capacity);
-            throw;
-        }
-        for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
-        if(data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
-        data_ = new_ptr;
-        capacity_ = new_capacity;
+        reallocate(new_capacity);
     }
 
     T& at(std::size_t i)
