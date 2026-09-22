@@ -2,6 +2,7 @@
 #define VECTOR_HPP
 
 #include <cstddef>
+#include <initializer_list>
 #include <iterator>
 #include <memory>
 #include <stdexcept>
@@ -49,6 +50,16 @@ template <typename T> class vector
         while (capacity_ < count) capacity_ *= 2;
         data_ = alloc_traits::allocate(alloc, capacity_);
         for (std::size_t i = 0; i < count; i++) alloc_traits::construct(alloc, data_ + i, value);
+    }
+    vector(std::initializer_list<T> initializer_list)
+        : data_(nullptr), size_(0), capacity_(0)
+    {
+        if (initializer_list.size() == 0) return;
+        capacity_ = 1;
+        while (capacity_ < initializer_list.size()) capacity_ *= 2;
+        data_ = alloc_traits::allocate(alloc, capacity_);
+        for (const T& value : initializer_list)
+            alloc_traits::construct(alloc, data_ + size_++, value);
     }
     ~vector()
     {
