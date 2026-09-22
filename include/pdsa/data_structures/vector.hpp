@@ -63,6 +63,27 @@ template <typename T> class vector
             throw;
         }
     }
+    vector(std::size_t count) : data_(nullptr), size_(0), capacity_(0)
+    {
+        if (count == 0) return;
+        capacity_ = 1;
+        while (capacity_ < count) capacity_ *= 2;
+        data_ = alloc_traits::allocate(alloc, capacity_);
+        try
+        {
+            for (std::size_t i = 0; i < count; i++)
+            {
+                alloc_traits::construct(alloc, data_ + size_);
+                ++size_;
+            }
+        }
+        catch (...)
+        {
+            for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
+            alloc_traits::deallocate(alloc, data_, capacity_);
+            throw;
+        }
+    }
     vector(std::initializer_list<T> initializer_list) : data_(nullptr), size_(0), capacity_(0)
     {
         if (initializer_list.size() == 0) return;
