@@ -241,6 +241,31 @@ template <typename T> class vector
         capacity_ = size_;
     }
 
+    void reserve(std::size_t new_capacity)
+    {
+        if (new_capacity <= capacity_) return;
+        T* new_ptr = alloc_traits::allocate(alloc, new_capacity);
+        std::size_t copied_size = 0;
+        try
+        {
+            while (copied_size < size_)
+            {
+                alloc_traits::construct(alloc, new_ptr + copied_size, data_[copied_size]);
+                ++copied_size;
+            }
+        }
+        catch (...)
+        {
+            for (std::size_t i = 0; i < copied_size; i++) alloc_traits::destroy(alloc, new_ptr + i);
+            alloc_traits::deallocate(alloc, new_ptr, new_capacity);
+            throw;
+        }
+        for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
+        if(data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
+        data_ = new_ptr;
+        capacity_ = new_capacity;
+    }
+
     T& at(std::size_t i)
     {
         if (i >= size_) throw std::out_of_range("pdsa::vector::at: index out of range");
