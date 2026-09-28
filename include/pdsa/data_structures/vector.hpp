@@ -6,6 +6,7 @@
 #include <iterator>
 #include <memory>
 #include <stdexcept>
+#include <utility>
 
 namespace pdsa
 {
@@ -404,6 +405,12 @@ template <typename T> class vector
         if (empty()) throw std::out_of_range("pdsa::vector::back: vector is empty");
         return data_[size_ - 1];
     }
+
+    Iterator erase(ConstIterator pos);
+    Iterator erase(std::size_t pos);
+
+    Iterator insert(ConstIterator pos, const T& value);
+    Iterator insert(std::size_t pos, const T& value);
 };
 
 template <typename T> struct vector<T>::Iterator
@@ -572,6 +579,25 @@ template <typename T> struct vector<T>::ConstIterator
   private:
     pointer m_ptr;
 };
+
+template <typename T> vector<T>::Iterator vector<T>::erase(vector<T>::ConstIterator pos)
+{
+    std::size_t position = pos - begin();
+    for (vector<T>::Iterator i = Iterator(data_ + position) + 1; i < end(); i++)
+        *(i - 1) = std::move(*i);
+
+    alloc_traits::destroy(alloc, data_ + size_ - 1);
+    --size_;
+
+    return Iterator(data_ + position);
+}
+
+template <typename T> vector<T>::Iterator vector<T>::erase(std::size_t pos)
+{
+    if (pos >= size_) throw std::out_of_range("pdsa::vector::erase: index out of range");
+
+    return erase(ConstIterator(data_ + pos));
+}
 
 } // namespace pdsa
 
