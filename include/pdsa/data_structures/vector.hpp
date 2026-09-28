@@ -78,7 +78,7 @@ template <typename T> class vector
         data_ = alloc_traits::allocate(alloc, capacity_);
         try
         {
-            for (std::size_t i = 0; i < count; i++)
+            while (size_ < count)
             {
                 alloc_traits::construct(alloc, data_ + size_, value);
                 ++size_;
@@ -100,7 +100,7 @@ template <typename T> class vector
         data_ = alloc_traits::allocate(alloc, capacity_);
         try
         {
-            for (std::size_t i = 0; i < count; i++)
+            while (size_ < count)
             {
                 alloc_traits::construct(alloc, data_ + size_);
                 ++size_;
@@ -159,9 +159,9 @@ template <typename T> class vector
         capacity_ = other.capacity_;
         try
         {
-            for (std::size_t i = 0; i < other.size_; i++)
+            while (size_ < other.size_)
             {
-                alloc_traits::construct(alloc, data_ + size_, other.data_[i]);
+                alloc_traits::construct(alloc, data_ + size_, other.data_[size_]);
                 ++size_;
             }
         }
@@ -182,9 +182,9 @@ template <typename T> class vector
         std::size_t new_size = 0;
         try
         {
-            for (std::size_t i = 0; i < other.size_; i++)
+            while (new_size < other.size_)
             {
-                alloc_traits::construct(alloc, new_data + new_size, other.data_[i]);
+                alloc_traits::construct(alloc, new_data + new_size, other.data_[new_size]);
                 ++new_size;
             }
         }
