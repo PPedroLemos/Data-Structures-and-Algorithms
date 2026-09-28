@@ -12,20 +12,18 @@ namespace pdsa
 
 namespace detail
 {
-    template<typename T>
-    T min(T a, T b)
-    {
-        if (b < a) return b;
-        return a;
-    }
-
-    template<typename T>
-    T max(T a, T b)
-    {
-        if (a < b) return b;
-        return a;
-    }
+template <typename T> T min(T a, T b)
+{
+    if (b < a) return b;
+    return a;
 }
+
+template <typename T> T max(T a, T b)
+{
+    if (a < b) return b;
+    return a;
+}
+} // namespace detail
 
 template <typename T> class vector
 {
@@ -179,12 +177,28 @@ template <typename T> class vector
     {
         if (this == &other) return *this;
 
+        T* new_data = nullptr;
+        if (other.data_ != nullptr) new_data = alloc_traits::allocate(alloc, other.capacity_);
+        std::size_t new_size = 0;
+        try
+        {
+            for (std::size_t i = 0; i < other.size_; i++)
+            {
+                alloc_traits::construct(alloc, new_data + new_size, other.data_[i]);
+                ++new_size;
+            }
+        }
+        catch (...)
+        {
+            for (std::size_t i = 0; i < new_size; i++) alloc_traits::destroy(alloc, new_data + i);
+            if (new_data != nullptr) alloc_traits::deallocate(alloc, new_data, other.capacity_);
+            throw;
+        }
+
         for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
         if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
-        data_ = nullptr;
-        if (other.data_ != nullptr) data_ = alloc_traits::allocate(alloc, other.capacity_);
-        for (std::size_t i = 0; i < other.size_; i++)
-            alloc_traits::construct(alloc, data_ + i, other.data_[i]);
+        data_ = new_data;
+
         size_ = other.size_;
         capacity_ = other.capacity_;
 
@@ -312,14 +326,15 @@ template <typename T> class vector
             }
             catch (...)
             {
-                for (std::size_t i = size_; i < copied_size; i++) alloc_traits::destroy(alloc, data_ + i);
+                for (std::size_t i = size_; i < copied_size; i++)
+                    alloc_traits::destroy(alloc, data_ + i);
                 throw;
             }
             size_ = new_size;
         }
     }
 
-    void resize(std::size_t new_size, const T& value) 
+    void resize(std::size_t new_size, const T& value)
     {
         if (new_size == size_) return;
         if (new_size < size_)
@@ -346,7 +361,8 @@ template <typename T> class vector
             }
             catch (...)
             {
-                for (std::size_t i = size_; i < copied_size; i++) alloc_traits::destroy(alloc, data_ + i);
+                for (std::size_t i = size_; i < copied_size; i++)
+                    alloc_traits::destroy(alloc, data_ + i);
                 throw;
             }
             size_ = new_size;
