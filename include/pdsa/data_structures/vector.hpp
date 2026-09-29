@@ -62,12 +62,6 @@ template <typename T> class vector
         capacity_ = new_capacity;
     }
 
-    void grow()
-    {
-        if (capacity_ == 0) reallocate(1);
-        else reallocate(capacity_ * 2);
-    }
-
   public:
     vector() : data_(nullptr), size_(0), capacity_(0) {}
 
@@ -269,9 +263,38 @@ template <typename T> class vector
 
     void push_back(const T& value)
     {
-        if (size_ >= capacity_) grow();
-        alloc_traits::construct(alloc, data_ + size_, value);
-        size_++;
+        if (size_ < capacity_)
+        {
+            alloc_traits::construct(alloc, data_ + size_, value);
+            ++size_;
+            return;
+        }
+
+        std::size_t new_capacity = (capacity_ == 0 ? 1 : 2*capacity_);
+        T* new_ptr = alloc_traits::allocate(alloc, new_capacity);
+        std::size_t copied_size = 0;
+        try
+        {
+            while (copied_size < size_)
+            {
+                alloc_traits::construct(alloc, new_ptr + copied_size, data_[copied_size]);
+                ++copied_size;
+            }
+            alloc_traits::construct(alloc, new_ptr + copied_size, value);
+            ++copied_size;
+        }
+        catch (...)
+        {
+            for (std::size_t i = 0; i < copied_size; i++) alloc_traits::destroy(alloc, new_ptr + i);
+            alloc_traits::deallocate(alloc, new_ptr, new_capacity);
+            throw;
+        }
+
+        for (std::size_t i = 0; i < size_; i++) alloc_traits::destroy(alloc, data_ + i);
+        if (data_ != nullptr) alloc_traits::deallocate(alloc, data_, capacity_);
+        data_ = new_ptr;
+        capacity_ = new_capacity;
+        size_ = copied_size;
     }
 
     void pop_back()
