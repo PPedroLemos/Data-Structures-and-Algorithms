@@ -26,6 +26,12 @@ template <typename T> T max(T a, T b)
 }
 } // namespace detail
 
+/**
+@brief A vector with contiguous storage.
+
+@tparam T Type of the elements stored by the vector.
+*/
+
 template <typename T> class vector
 {
   private:
