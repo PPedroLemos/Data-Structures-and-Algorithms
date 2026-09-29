@@ -599,6 +599,91 @@ template <typename T> vector<T>::Iterator vector<T>::erase(std::size_t pos)
     return erase(ConstIterator(data_ + pos));
 }
 
+template <typename T>
+vector<T>::Iterator vector<T>::insert(vector<T>::ConstIterator pos, const T& value)
+{
+    std::size_t position = (empty() ? 0 : pos - begin());
+    T copied_value = value;
+
+    if (position == size_)
+    {
+        push_back(copied_value);
+        return end() - 1;
+    }
+
+    if (size_ == capacity_)
+    {
+        std::size_t new_capacity = 2 * capacity_;
+        T* new_ptr = alloc_traits::allocate(alloc, new_capacity);
+        std::size_t new_size = 0;
+        try
+        {
+            while (new_size < position)
+            {
+                alloc_traits::construct(alloc, new_ptr + new_size, at(new_size));
+                new_size++;
+            }
+            alloc_traits::construct(alloc, new_ptr + new_size, value);
+            ++new_size;
+            while (new_size <= size_)
+            {
+                alloc_traits::construct(alloc, new_ptr + new_size, at(new_size - 1));
+                new_size++;
+            }
+        }
+        catch(...)
+        {
+            for (std::size_t i = 0; i < new_size; i++) alloc_traits::destroy(alloc, new_ptr + i);
+            alloc_traits::deallocate(alloc, new_ptr, new_capacity);
+            throw;
+        }
+
+        clear();
+        alloc_traits::deallocate(alloc, data_, capacity_);
+
+        data_ = new_ptr;
+        size_ = new_size;
+        capacity_ = new_capacity;
+    }
+    else
+    {
+        alloc_traits::construct(alloc, data_ + size_, copied_value);
+        vector<T>::Iterator It_pos = end();
+        while (It_pos > begin() + position)
+        {
+            try
+            {
+                *It_pos = std::move(*(It_pos - 1));
+            }
+            catch (...)
+            {
+                alloc_traits::destroy(alloc, data_ + size_);
+                throw;
+            }
+            --It_pos;
+        }
+        try
+        {
+            *It_pos = copied_value;
+        }
+        catch (...)
+        {
+            alloc_traits::destroy(alloc, data_ + size_);
+            throw;
+        }
+        ++size_;
+    }
+
+    return Iterator(data_ + position);
+}
+
+template <typename T> vector<T>::Iterator vector<T>::insert(std::size_t pos, const T& value)
+{
+    if (pos > size_) throw std::out_of_range("pdsa::vector::insert: index out of range");
+    if (empty()) return insert(begin(), value);
+    return insert(begin() + pos, value);
+}
+
 } // namespace pdsa
 
 #endif
