@@ -1,5 +1,5 @@
-#ifndef MERGE_SORT_HPP
-#define MERGE_SORT_HPP
+#ifndef PDSA_MERGE_SORT_HPP
+#define PDSA_MERGE_SORT_HPP
 
 #include <iterator>
 #include <memory>
@@ -10,15 +10,16 @@ namespace pdsa
 namespace detail
 {
 
-template<typename Src_Iterator, typename Dst_Iterator>
-void merge(Src_Iterator src_begin, Src_Iterator src_middle, Src_Iterator src_end, Dst_Iterator dst_begin)
+template <typename Src_Iterator, typename Dst_Iterator>
+void merge(Src_Iterator src_begin, Src_Iterator src_middle, Src_Iterator src_end,
+           Dst_Iterator dst_begin)
 {
     Src_Iterator i = src_begin;
     Src_Iterator j = src_middle;
     Dst_Iterator k = dst_begin;
     Dst_Iterator dst_end = dst_begin + (src_end - src_begin);
-    
-    for (; k != dst_end; k++) 
+
+    for (; k != dst_end; k++)
     {
         if (i >= src_middle) *k = *j++;
         else if (j >= src_end) *k = *i++;
@@ -27,7 +28,7 @@ void merge(Src_Iterator src_begin, Src_Iterator src_middle, Src_Iterator src_end
     }
 }
 
-template<typename Src_Iterator, typename Dst_Iterator>
+template <typename Src_Iterator, typename Dst_Iterator>
 void merge_sort(Src_Iterator src_begin, Src_Iterator src_end, Dst_Iterator dst_begin)
 {
     if (src_end - src_begin <= 1) return;
@@ -35,8 +36,8 @@ void merge_sort(Src_Iterator src_begin, Src_Iterator src_end, Dst_Iterator dst_b
     auto size = src_end - src_begin;
 
     Dst_Iterator dst_end = dst_begin + size;
-    Dst_Iterator dst_middle = dst_begin + size/2;
-    Src_Iterator src_middle = src_begin + size/2;
+    Dst_Iterator dst_middle = dst_begin + size / 2;
+    Src_Iterator src_middle = src_begin + size / 2;
 
     merge_sort(dst_begin, dst_middle, src_begin);
     merge_sort(dst_middle, dst_end, src_middle);
@@ -44,10 +45,9 @@ void merge_sort(Src_Iterator src_begin, Src_Iterator src_end, Dst_Iterator dst_b
     merge(dst_begin, dst_middle, dst_end, src_begin);
 }
 
-}
+} // namespace detail
 
-template<typename Iterator>
-void merge_sort(Iterator begin, Iterator end)
+template <typename Iterator> void merge_sort(Iterator begin, Iterator end)
 {
     using T = typename std::iterator_traits<Iterator>::value_type;
     using alloc_type = std::allocator<T>;
@@ -66,6 +66,6 @@ void merge_sort(Iterator begin, Iterator end)
     alloc_traits::deallocate(alloc, aux, size);
 }
 
-}
+} // namespace pdsa
 
 #endif

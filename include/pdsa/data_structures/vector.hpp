@@ -6,9 +6,9 @@
 #include <iterator>
 #include <limits>
 #include <memory>
+#include <pdsa/utility.hpp>
 #include <stdexcept>
 #include <utility>
-#include <pdsa/utility.hpp>
 
 namespace pdsa
 {

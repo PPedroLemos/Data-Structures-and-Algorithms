@@ -1,5 +1,5 @@
-#ifndef STACK_HPP
-#define STACK_HPP
+#ifndef PDSA_STACK_HPP
+#define PDSA_STACK_HPP
 
 #include "./vector.hpp"
 

@@ -1,5 +1,5 @@
-#ifndef QUICKSORT_HPP
-#define QUICKSORT_HPP
+#ifndef PDSA_QUICKSORT_HPP
+#define PDSA_QUICKSORT_HPP
 
 #include <iterator>
 #include <pdsa/data_structures/pair.hpp>
