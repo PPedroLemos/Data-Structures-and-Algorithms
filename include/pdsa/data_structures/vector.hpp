@@ -4,26 +4,17 @@
 #include <cstddef>
 #include <initializer_list>
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <stdexcept>
 #include <utility>
+#include <pdsa/utility.hpp>
 
 namespace pdsa
 {
 
 namespace detail
 {
-template <typename T> T min(T a, T b)
-{
-    if (b < a) return b;
-    return a;
-}
-
-template <typename T> T max(T a, T b)
-{
-    if (a < b) return b;
-    return a;
-}
 } // namespace detail
 
 /**
@@ -234,6 +225,15 @@ template <typename T> class vector
         return *this;
     }
 
+    std::size_t max_size() const noexcept
+    {
+        const std::size_t max_alloc = alloc_traits::max_size(alloc);
+        const std::size_t max_pointer =
+            static_cast<std::size_t>(std::numeric_limits<std::ptrdiff_t>::max()) / sizeof(T);
+
+        return pdsa::min<std::size_t>(max_alloc, max_pointer);
+    }
+
     struct Iterator;
     struct ConstIterator;
 
@@ -276,7 +276,7 @@ template <typename T> class vector
             return;
         }
 
-        std::size_t new_capacity = detail::max<std::size_t>(1, 2*capacity_);
+        std::size_t new_capacity = pdsa::max<std::size_t>(1, 2 * capacity_);
         T* new_ptr = alloc_traits::allocate(alloc, new_capacity);
         std::size_t copied_size = 0;
         try
@@ -353,14 +353,15 @@ template <typename T> class vector
             }
             catch (...)
             {
-                for (std::size_t i = size_ ; i < size_ + constructed_size ; i++) alloc_traits::destroy(alloc, data_ + i);
+                for (std::size_t i = size_; i < size_ + constructed_size; i++)
+                    alloc_traits::destroy(alloc, data_ + i);
                 throw;
             }
             size_ += constructed_size;
             return;
         }
 
-        std::size_t new_capacity = detail::max<std::size_t>(1, capacity_);
+        std::size_t new_capacity = pdsa::max<std::size_t>(1, capacity_);
         while (new_capacity < new_size) new_capacity *= 2;
         T* new_ptr = alloc_traits::allocate(alloc, new_capacity);
         try
@@ -378,7 +379,8 @@ template <typename T> class vector
         }
         catch (...)
         {
-            for (std::size_t i = 0; i < constructed_size; i++) alloc_traits::destroy(alloc, new_ptr + i);
+            for (std::size_t i = 0; i < constructed_size; i++)
+                alloc_traits::destroy(alloc, new_ptr + i);
             alloc_traits::deallocate(alloc, new_ptr, new_capacity);
             throw;
         }
@@ -388,7 +390,7 @@ template <typename T> class vector
         data_ = new_ptr;
         capacity_ = new_capacity;
         size_ = constructed_size;
-   }
+    }
 
     void resize(std::size_t new_size, const T& value)
     {
@@ -414,7 +416,8 @@ template <typename T> class vector
             }
             catch (...)
             {
-                for (std::size_t i = size_ ; i < size_ + constructed_size ; i++) alloc_traits::destroy(alloc, data_ + i);
+                for (std::size_t i = size_; i < size_ + constructed_size; i++)
+                    alloc_traits::destroy(alloc, data_ + i);
                 throw;
             }
             size_ += constructed_size;
@@ -422,7 +425,7 @@ template <typename T> class vector
         }
 
         T copied_value = value;
-        std::size_t new_capacity = detail::max<std::size_t>(1, capacity_);
+        std::size_t new_capacity = pdsa::max<std::size_t>(1, capacity_);
         while (new_capacity < new_size) new_capacity *= 2;
         T* new_ptr = alloc_traits::allocate(alloc, new_capacity);
         try
@@ -440,7 +443,8 @@ template <typename T> class vector
         }
         catch (...)
         {
-            for (std::size_t i = 0; i < constructed_size; i++) alloc_traits::destroy(alloc, new_ptr + i);
+            for (std::size_t i = 0; i < constructed_size; i++)
+                alloc_traits::destroy(alloc, new_ptr + i);
             alloc_traits::deallocate(alloc, new_ptr, new_capacity);
             throw;
         }
@@ -713,7 +717,7 @@ vector<T>::Iterator vector<T>::insert(vector<T>::ConstIterator pos, const T& val
                 new_size++;
             }
         }
-        catch(...)
+        catch (...)
         {
             for (std::size_t i = 0; i < new_size; i++) alloc_traits::destroy(alloc, new_ptr + i);
             alloc_traits::deallocate(alloc, new_ptr, new_capacity);
