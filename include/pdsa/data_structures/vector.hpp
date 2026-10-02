@@ -239,7 +239,7 @@ template <typename T> class vector
 
     std::size_t size() const { return size_; }
     std::size_t capacity() const { return capacity_; }
-    bool empty() const { return size_ == 0; }
+    bool is_empty() const { return size_ == 0; }
     T* data() { return data_; }
     const T* data() const { return data_; }
 
@@ -305,7 +305,7 @@ template <typename T> class vector
 
     void pop_back()
     {
-        if (size_ == 0) throw std::out_of_range("pdsa::vector::pop_back: vector is empty");
+        if (is_empty()) throw std::out_of_range("pdsa::vector::pop_back: vector is empty");
         alloc_traits::destroy(alloc, data_ + size_ - 1);
         size_--;
     }
@@ -470,25 +470,25 @@ template <typename T> class vector
 
     T& front()
     {
-        if (empty()) throw std::out_of_range("pdsa::vector::front: vector is empty");
+        if (is_empty()) throw std::out_of_range("pdsa::vector::front: vector is empty");
         return data_[0];
     }
 
     const T& front() const
     {
-        if (empty()) throw std::out_of_range("pdsa::vector::front: vector is empty");
+        if (is_empty()) throw std::out_of_range("pdsa::vector::front: vector is empty");
         return data_[0];
     }
 
     T& back()
     {
-        if (empty()) throw std::out_of_range("pdsa::vector::back: vector is empty");
+        if (is_empty()) throw std::out_of_range("pdsa::vector::back: vector is empty");
         return data_[size_ - 1];
     }
 
     const T& back() const
     {
-        if (empty()) throw std::out_of_range("pdsa::vector::back: vector is empty");
+        if (is_empty()) throw std::out_of_range("pdsa::vector::back: vector is empty");
         return data_[size_ - 1];
     }
 
@@ -688,7 +688,7 @@ template <typename T> vector<T>::Iterator vector<T>::erase(std::size_t pos)
 template <typename T>
 vector<T>::Iterator vector<T>::insert(vector<T>::ConstIterator pos, const T& value)
 {
-    std::size_t position = (empty() ? 0 : pos - begin());
+    std::size_t position = (is_empty() ? 0 : pos - begin());
     T copied_value = value;
 
     if (position == size_)
@@ -766,7 +766,7 @@ vector<T>::Iterator vector<T>::insert(vector<T>::ConstIterator pos, const T& val
 template <typename T> vector<T>::Iterator vector<T>::insert(std::size_t pos, const T& value)
 {
     if (pos > size_) throw std::out_of_range("pdsa::vector::insert: index out of range");
-    if (empty()) return insert(begin(), value);
+    if (is_empty()) return insert(begin(), value);
     return insert(begin() + pos, value);
 }
 
