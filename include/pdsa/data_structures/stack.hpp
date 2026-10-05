@@ -16,7 +16,7 @@ template <typename T, typename Container = pdsa::vector<T>> class Stack
 
     std::size_t size() const { return container.size(); }
     std::size_t capacity() const { return container.capacity(); }
-    bool empty() const { return container.empty(); }
+    bool is_empty() const { return container.is_empty(); }
 
     void push(const T& value) { container.push_back(value); }
     T& top() { container.back(); }
