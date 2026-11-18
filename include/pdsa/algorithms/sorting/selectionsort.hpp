@@ -1,5 +1,5 @@
-#ifndef PDSA_SELECTION_SORT_HPP
-#define PDSA_SELECTION_SORT_HPP
+#ifndef PDSA_SELECTIONSORT_HPP
+#define PDSA_SELECTIONSORT_HPP
 
 #include <iterator>
 #include <pdsa/utility.hpp>

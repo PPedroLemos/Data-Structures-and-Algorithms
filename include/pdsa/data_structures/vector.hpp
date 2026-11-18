@@ -1,5 +1,5 @@
-#ifndef VECTOR_HPP
-#define VECTOR_HPP
+#ifndef PDSA_VECTOR_HPP
+#define PDSA_VECTOR_HPP
 
 #include <cstddef>
 #include <initializer_list>

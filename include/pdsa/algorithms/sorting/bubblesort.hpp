@@ -1,5 +1,5 @@
-#ifndef PDSA_BUBBLE_SORT_HPP
-#define PDSA_BUBBLE_SORT_HPP
+#ifndef PDSA_BUBBLESORT_HPP
+#define PDSA_BUBBLESORT_HPP
 
 #include <iterator>
 #include <pdsa/utility.hpp>

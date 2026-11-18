@@ -1,5 +1,5 @@
-#ifndef PDSA_MERGE_SORT_HPP
-#define PDSA_MERGE_SORT_HPP
+#ifndef PDSA_MERGESORT_HPP
+#define PDSA_MERGESORT_HPP
 
 #include <iterator>
 #include <memory>
